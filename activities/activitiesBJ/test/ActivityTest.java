@@ -29,9 +29,9 @@ public class ActivityTest{
         Composed c = new Composed("IS-BASICA", 100 , false );
         c.add(new Simple("AYED", 10, 10));
         c.add(new Simple("MBDA", 10, 20));
-        c.add(new Simple("POOB", 10, 30));
+        c.add(new Simple("POOB", 10, 15));//Se cambia a 15
         try {
-           assertEquals(60,c.time());
+           assertEquals(45,c.time());
         } catch (ProjectException e){
             fail("Threw a exception");
         }    
@@ -42,9 +42,9 @@ public class ActivityTest{
         Composed c = new Composed("IS-BASICA", 100 , true );
         c.add(new Simple("AYED", 10, 10));
         c.add(new Simple("MBDA", 10, 20));
-        c.add(new Simple("POOB", 10, 30));
+        c.add(new Simple("POOB", 10, 15));
         try {
-           assertEquals(30,c.time());
+           assertEquals(20,c.time());
         } catch (ProjectException e){
             fail("Threw a exception");
         }    
