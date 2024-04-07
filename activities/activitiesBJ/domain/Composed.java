@@ -18,10 +18,7 @@ public class Composed extends Activity{
         this.parallel=parallel;
         activities= new ArrayList<Activity>();
     }
-
-
     
-
      /**
      * Add a new activity
      * @param a
@@ -49,17 +46,15 @@ public class Composed extends Activity{
     @Override
     public int time() throws ProjectException{
         if(activities.isEmpty()) throw new ProjectException(ProjectException.COMPOSED_EMPTY);
-        if(!parallel){
-           time = 0;
-           for(Activity a: activities){
-                time += a.time();    
-            }
-            return time; 
-        }else{
-            time = Integer.MIN_VALUE;
-            for(Activity a: activities){
-                if (a.time() > time) time = a.time();    
-            }
+        int maxtime = Integer.MIN_VALUE;
+        time = 0;
+        for(Activity a: activities){
+            time += a.time();
+            if(a.time() > maxtime) maxtime = a.time();
+        }
+        if(!parallel) return time;
+        else{
+            time = maxtime;
             return time;  
         }
     }
