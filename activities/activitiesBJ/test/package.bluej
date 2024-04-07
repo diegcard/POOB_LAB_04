@@ -1,12 +1,12 @@
 #BlueJ package file
 objectbench.height=94
-objectbench.width=761
-package.divider.horizontal=0.6
-package.divider.vertical=0.7971246006389776
+objectbench.width=451
+package.divider.horizontal=0.599476439790576
+package.divider.vertical=0.798
 package.editor.height=392
-package.editor.width=647
-package.editor.x=608
-package.editor.y=70
+package.editor.width=644
+package.editor.x=228
+package.editor.y=78
 package.frame.height=600
 package.frame.width=800
 package.numDependencies=0
@@ -23,5 +23,5 @@ target1.name=ActivityTest
 target1.showInterface=false
 target1.type=UnitTestTargetJunit4
 target1.width=110
-target1.x=100
-target1.y=190
+target1.x=180
+target1.y=130

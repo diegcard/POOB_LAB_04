@@ -30,35 +30,43 @@ public class Composed extends Activity{
         activities.add(a);
     }
        
- 
+    /**
+     * Return cost tha it will take to make the activity
+     * @return cost
+     * @throws ProjectException, if the cost is not available or has an error
+     */    
     @Override
     public int cost(){
         return 0;
     }
     
-    
+    /**
+     * calculates the total time it will take to execute a composed
+     * activity, depending on whether the activity is performed sequentially or parallel
+     * 
+     * @return time total
+     */
     @Override
     public int time() throws ProjectException{
         if(activities.isEmpty()) throw new ProjectException(ProjectException.COMPOSED_EMPTY);
-        int total;
         if(!parallel){
-            total = 0;
+           time = 0;
            for(Activity a: activities){
-                total += a.time();    
+                time += a.time();    
             }
-            return total; 
+            return time; 
         }else{
-            total = Integer.MIN_VALUE;
+            time = Integer.MIN_VALUE;
             for(Activity a: activities){
-                if (a.time() > total) total = a.time();    
+                if (a.time() > time) time = a.time();    
             }
-            return total;  
+            return time;  
         }
     }
 
 
     /**
-     * Calculates an estimated price using default values when necessary
+     * Calculates an estimated time using default values when necessary
      *
      * @param dUnknow valor por defecto para actividades desconocidas
      * @param dError  valor por defecto para actividades con error
@@ -71,11 +79,14 @@ public class Composed extends Activity{
         } catch (ProjectException e) {
             switch (e.getMessage()) {
                 case ProjectException.COMPOSED_EMPTY:
-                    return dEmpty;
-                case ProjectException.TIME_EMPTY:
+                    time = dUnknow;
                     return dUnknow;
                 case ProjectException.TIME_ERROR:
+                    time = dError;
                     return dError;
+                case ProjectException.TIME_EMPTY:
+                    time = dEmpty;
+                    return dEmpty;
                 default:
                     return 0;
             }
@@ -84,27 +95,68 @@ public class Composed extends Activity{
     
     
      /**
-     * Calculate an estimated price considering the modality, if is possible.
+     * Calculate an estimated time considering the modality, if is possible.
      * @param modality ['A'(verage), 'M' (ax)] Use the average or maximum time of known activities to estimate unknown ones or those with error.
      * @return 0
      * @throws ProjectException  IMPOSSIBLE, if it can't be calculated
      **/
-    public int time(char modality){
-        return 0;
+    public int time(char modality) throws ProjectException{
+        if(activities.isEmpty()) throw new ProjectException(ProjectException.COMPOSED_EMPTY);
+        int totalTime = 0, count = 0, maxTime = Integer.MIN_VALUE;
+        ArrayList<Integer> errorIndices = new ArrayList<Integer>();
+        for(Activity a: activities){
+            try {
+                totalTime += a.time();
+                count++;
+                if(a.time() > maxTime) maxTime = a.time();
+            }catch (ProjectException e){
+                errorIndices.add(activities.indexOf(a));
+            }
+        }
+        if(count == 0 || !(modality == 'A' || modality == 'M')) throw new ProjectException(ProjectException.IMPOSIBLE);
+        int estimatedTime = modality == 'A' ? totalTime/count : maxTime;
+        for(int i: errorIndices) activities.get(i).time = estimatedTime;
+        if(parallel) time = maxTime;
+        else time = totalTime+estimatedTime*(errorIndices.size());
+        return time;
     } 
     
      /**
-     * Calculates an time of a subactivity
-     * @return 
+     * Calculates a time of a subactivity
+     * @return time of the subactivity
      * @throws ProjectException UNKNOWN, if it doesn't exist. IMPOSSIBLE, if it can't be calculated
      */
     public int time(String activity) throws ProjectException{
-        return 0;
-    }   
-    
-    
+        Activity a = search(activity);
+        if(a == null) throw new ProjectException(ProjectException.UNKNOWN);
+        try{
+            return a.time();
+        }catch(ProjectException e){
+            throw new ProjectException(ProjectException.IMPOSIBLE);
+        }
+    }
 
+    /**
+     * Search for an activity by name
+     *
+     * @param name the name of the activity to search
+     * @return the activity if it exists, null otherwise
+     */
+    @Override
+    public Activity search(String name) {
+        for (Activity a : activities) {
+            if (a.name().equals(name)) return a;
+            Activity found = a.search(name);
+            if (found != null) return found;
+        }
+        return null;
+    }
     
+    /**
+     * Return the representation as string
+     * @return
+     * @throws ProjectException, if the data is not complete
+     */    
     @Override
     public String data() throws ProjectException{
         StringBuffer answer=new StringBuffer();
@@ -114,6 +166,5 @@ public class Composed extends Activity{
         }
         return answer.toString();
     } 
-    
 
 }
