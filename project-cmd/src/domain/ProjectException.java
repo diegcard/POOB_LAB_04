@@ -16,9 +16,6 @@ public class ProjectException extends Exception{
     public static final String UNKNOWN = "Dicha actividad no existe";
     public static final String COST_EMPTY = "Debes asignar un costo a una actividad simple";
     public static final String COST_ERROR = "Error en el costo, verifica limites";
-    public static final String DUPLICATE_ACTIVITY = "Ya existe una actividad con dicho nombre";
-    public static final String SIMPLE_ERROR = "No puedes poner subactividades a una actividad simple";
-    public static final String COMPOSED_ERROR = "Verifica que el tipo de actividad compuesta sea 'Paralela' o 'Secuencial'";
     
     
     public ProjectException(String message){

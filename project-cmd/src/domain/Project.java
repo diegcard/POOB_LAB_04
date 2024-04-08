@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Project
+ * This class represents a project that is composed of activities
  * @author POOB  
  * @version ECI 2022
  */

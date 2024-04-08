@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Project
+ * This class represents a project that is composed of activities
  * @author POOB  
  * @version ECI 2022
  */
@@ -25,12 +25,13 @@ public class Project{
         String [][] activities= {{"Buscar datos","50","50", "" },
                                  {"Evaluar datos","80","80",""},
                                  {"Limpiar datos","100","100",""},
-                                 {"Preparar datos", "50", "Secuencial", "Buscar datos\nEvaluar datos\nLimpiar datos"}};
+                                 {"Iterar","1000","500",""},
+                                 {"Preparar datos", "50", "Secuencial", "Buscar datos\nEvaluar datos\nLimpiar datos"},
+                                 {"Iterar 3 veces", "100", "Paralela", "Iterar\nIterar\nIterar"}};
         for (String [] c: activities){
             add(c[0],c[1],c[2],c[3]);
         }
     }
-
 
     
     /**

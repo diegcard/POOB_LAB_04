@@ -6,7 +6,11 @@ import java.util.logging.SimpleFormatter;
 import java.util.logging.Level;
 
 /**
- * 
+ *  This class represents a log of the project that can be used
+ *  to record exceptions
+ *
+ * @author POOB
+ * @version ECI 2022
  */
 public class Log{
     public static String name="Project";

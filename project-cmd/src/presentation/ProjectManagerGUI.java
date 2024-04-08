@@ -9,6 +9,9 @@ import javax.swing.event.*;
 import java.util.*;
 
 /**
+ * This class represents the GUI of the project manager
+ * It allows to list, add and search activities
+ * @autor POOB
  * @version ECI 2024
  */
 public class ProjectManagerGUI extends JFrame{

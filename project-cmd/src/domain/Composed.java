@@ -39,11 +39,8 @@ public class Composed extends Activity{
      * @throws ProjectException, if the cost is not available or has an error
      */    
     @Override
-    public int cost() throws ProjectException{
-        if(activities.isEmpty()) throw new ProjectException(ProjectException.COMPOSED_EMPTY);
-        if(cost == null) throw new ProjectException(ProjectException.COST_EMPTY);
-        if(cost <= 0) throw new ProjectException(ProjectException.COST_ERROR);
-        return cost;
+    public int cost(){
+        return 0;
     }
     
     /**
