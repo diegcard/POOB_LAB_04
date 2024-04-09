@@ -163,8 +163,10 @@ public class Composed extends Activity{
      */    
     @Override
     public String data() throws ProjectException{
+        if(activities.isEmpty()) throw new ProjectException(ProjectException.COMPOSED_EMPTY);
+        if(cost == null || name == null) throw new ProjectException(ProjectException.DATA_INCOMPLETE);
         StringBuffer answer=new StringBuffer();
-        answer.append(name+". Tipo "+ (parallel ? "Paralela": "Secuencial")+". ");
+        answer.append(name+". Tipo "+ (parallel ? "Paralela": "Secuencial")+".");
         for(Activity b: activities) {
             answer.append("\n\t"+b.data());
         }

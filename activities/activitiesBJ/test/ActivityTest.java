@@ -23,7 +23,7 @@ public class ActivityTest{
     public void tearDown(){
     }
     
- 
+
     @Test
     public void shouldCalculateTheTimeOfAComposedSecuencialActivity(){
         Composed c = new Composed("IS-BASICA", 100 , false );
@@ -801,6 +801,311 @@ public class ActivityTest{
            fail("Did not throw exception");
         } catch (ProjectException e) {
             assertEquals(ProjectException.COST_EMPTY,e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldAddAnActivitySimpleInTheProject(){
+        Project p = new Project();
+        try{
+            p.add("aYED3","10","15","");
+            assertEquals("7 actividades\n>aYED3. Costo:10.Tiempo:15\n",p.search("aYED3"));
+        }catch (ProjectException e){
+            fail("Threw a exception");
+        }
+    }
+
+    @Test
+    public void shouldAddAnActivityComposedInTheProject(){
+        Project p = new Project();
+        try{
+            p.add("AYED","10","15","");
+            p.add("IS-BASICA","100","secuencial","AYED");
+        }catch (ProjectException e){
+            fail("Threw a exception");
+        }
+    }
+    
+    @Test
+    public void shouldAProjectListAllActivities() {
+        Project p = new Project();
+        try {
+            p.add("AYED", "10", "15", "");
+            p.add("IS-BASICA", "100", "secuencial", "AYED");
+            assertEquals("8 actividades\n>Iterar 3 veces. Tipo Paralela.\n\tIterar. Costo:1000.Tiempo:10\n\tIterar. Costo:1000.Tiempo:10\n\tIterar. Costo:1000.Tiempo:10\n>Buscar datos. Costo:50.Tiempo:15\n>Limpiar datos. Costo:100.Tiempo:24\n>AYED. Costo:10.Tiempo:15\n>Iterar. Costo:1000.Tiempo:10\n>Evaluar datos. Costo:80.Tiempo:20\n>IS-BASICA. Tipo Secuencial.\n\tAYED. Costo:10.Tiempo:15\n>Preparar datos. Tipo Secuencial.\n\tBuscar datos. Costo:50.Tiempo:15\n\tEvaluar datos. Costo:80.Tiempo:20\n\tLimpiar datos. Costo:100.Tiempo:24\n", p.toString());
+        } catch (ProjectException e) {
+            fail("Threw a exception");
+        }
+    }
+
+    @Test
+    public void shouldAProjectListAllActivities1(){
+        Project p = new Project();
+        try{
+            p.add("AYED","1","15","");
+            p.add("IS-BASICA","20","secuencial","AYED");
+            assertEquals("8 actividades\n>Iterar 3 veces. Tipo Paralela.\n\tIterar. Costo:1000.Tiempo:10\n\tIterar. Costo:1000.Tiempo:10\n\tIterar. Costo:1000.Tiempo:10\n>Buscar datos. Costo:50.Tiempo:15\n>Limpiar datos. Costo:100.Tiempo:24\n>AYED. Costo:1.Tiempo:15\n>Iterar. Costo:1000.Tiempo:10\n>Evaluar datos. Costo:80.Tiempo:20\n>IS-BASICA. Tipo Secuencial.\n\tAYED. Costo:1.Tiempo:15\n>Preparar datos. Tipo Secuencial.\n\tBuscar datos. Costo:50.Tiempo:15\n\tEvaluar datos. Costo:80.Tiempo:20\n\tLimpiar datos. Costo:100.Tiempo:24\n",p.toString());
+        }catch (ProjectException e){
+            fail("Threw a exception");
+        }
+    }
+
+    @Test
+    public void testAddAndConsultActivities(){
+        Project p = new Project();
+        try{
+            //Agregar  3 clases básicaa
+            p.add("AYED","10","15","");
+            p.add("MBDA","20","20","");
+            p.add("POOB","30","15","");
+            //Agregar 1 clases compuestas
+            p.add("IS-BASICA","100","Paralela","AYED\nMBDA\nPOOB");
+
+            //consultemos la actividad AYED
+            Activity ayed = p.consult("AYED");
+            assertEquals("AYED",ayed.name());
+
+            //consultemos la actividad MBDA
+            Activity mbda = p.consult("MBDA");
+            assertEquals("MBDA",mbda.name());
+
+            //consultemos la actividad POOB
+            Activity poob = p.consult("POOB");
+            assertEquals("POOB",poob.name());
+
+            //consultemos la actividad IS-BASICA
+            Activity isBasica = p.consult("IS-BASICA");
+            assertEquals("IS-BASICA",isBasica.name());
+
+            //calculemos el tiempo de la actividad IS-BASICA
+            try {
+                assertEquals(20,isBasica.time());
+            } catch (ProjectException e){
+                fail("Threw a exception");
+            }
+        }catch (ProjectException e){
+            fail("Threw a exception");
+        }
+    }
+
+    @Test
+    public void shouldTheProjectDontAcceptTwoActivitiesWithTheSameName(){
+        Project p = new Project();
+        try{
+            //Agregar  3 clases básicaa
+            p.add("AYED","10","15","");
+            p.add("MBDA","20","20","");
+            p.add("POOB","30","15","");
+            //Agregar 1 clases compuestas
+            p.add("IS-BASICA","100","Paralela","AYED\nMBDA\nPOOB");
+            //agregar la clase compuesta con el mismo nombre
+            p.add("IS-BASICA","100","Paralela","AYED\nMBDA\nPOOB");
+            fail("Did not throw exception");
+        }catch (ProjectException e){
+            assertEquals(ProjectException.DUPLICATE_ACTIVITY,e.getMessage());
+        }
+    }
+    
+    @Test
+    public void shouldTheProjectDontAcceptTwoActivitiesWithTheSameName1(){
+        Project p = new Project();
+        try {
+            //Agregar  1 clases básicaa
+            p.add("AYED","10","15","");
+            //intentar agregar otra actividad con el mismo nombre
+            p.add("AYED","20","20","");
+            fail("Did not throw exception");
+        } catch (ProjectException e) {
+            assertEquals(ProjectException.DUPLICATE_ACTIVITY,e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldTheProjectDontAcceptaActivityWithCostOrTimeEmptyOrTypeTimeDiferentToSecuencialOrParallel(){
+        Project p = new Project();
+        try {
+            //Agregar  3 clases básicaa
+            p.add("AYED","10","15","");
+            p.add("MBDA","20","20","");
+            p.add("POOB","30","15","");
+            //Agregar 1 clases compuestas
+            p.add("IS-BASICA","100","Paralela","AYED\nMBDA\nPOOB");
+            //agregar una clase simple con tiempo vacio
+            p.add("INSI","100","","");
+            fail("Did not throw exception");
+        } catch (ProjectException e) {
+            assertEquals(ProjectException.TIME_EMPTY,e.getMessage());
+            //agregar una clase simple con costo vacio
+            try {
+                p.add("INSI","","15","");
+                fail("Did not throw exception");
+            } catch (ProjectException e1) {
+                assertEquals(ProjectException.COST_EMPTY,e1.getMessage());
+                //agregar una clase compuesta con tipo de tiempo diferente a secuencial o paralela
+                try {
+                    p.add("PRYE","100","pepe","AYED\nMBDA\nPOOB");
+                    fail("Did not throw exception");
+                } catch (ProjectException e2) {
+                    assertEquals(ProjectException.COMPOSED_ERROR,e2.getMessage());
+                }
+            }
+        }
+    }
+
+    @Test
+    public void shouldDontAcceptProjectTimesAndCostsErrors(){
+        Project p = new Project();
+        try {
+            //Agregar  3 clases básicaa
+            p.add("AYED","10","15","");
+            p.add("MBDA","20","20","");
+            p.add("POOB","30","15","");
+            //Agregar 1 clases compuestas
+            p.add("IS-BASICA","100","Paralela","AYED\nMBDA\nPOOB");
+            //agregar una clase simple con tiempo vacio
+            p.add("INSI","100","-15","");
+            fail("Did not throw exception");
+        } catch (ProjectException e) {
+            assertEquals(ProjectException.TIME_ERROR,e.getMessage());
+            //agregar una clase simple con costo negativo
+            try {
+                p.add("INSI","-100","Paralela","AYED\nMBDA\nPOOB");
+                fail("Did not throw exception");
+            } catch (ProjectException e1) {
+                assertEquals(ProjectException.COST_ERROR,e1.getMessage());
+            }
+        }
+    }
+
+    @Test
+    public void shouldDontAcceptProjectTimesAndCostsEmpty(){
+        Project p = new Project();
+        try {
+            //Agregar  3 clases básicaa
+            p.add("AYED","10","15","");
+            p.add("MBDA","20","20","");
+            p.add("POOB","30","15","");
+            //Agregar 1 clases compuestas
+            p.add("IS-BASICA","100","Paralela","AYED\nMBDA\nPOOB");
+            //agregar una clase simple con tiempo vacio
+            p.add("INSI","100","","");
+            fail("Did not throw exception");
+        } catch (ProjectException e) {
+            assertEquals(ProjectException.TIME_EMPTY,e.getMessage());
+            //agregar una clase simple con costo negativo
+            try {
+                p.add("PSOC","","Paralela","AYED\nMBDA\nPOOB");
+                fail("Did not throw exception");
+            } catch (ProjectException e1) {
+                assertEquals(ProjectException.COST_EMPTY,e1.getMessage());
+            }
+        }
+    }
+
+    @Test
+    public void shouldDontAcceptProjectNamesEmpty(){
+        Project p = new Project();
+        try {
+            //Agregar  3 clases básicaa
+            p.add("AYED","10","15","");
+            p.add("MBDA","20","20","");
+            p.add("POOB","30","15","");
+            //Agregar 1 clases compuestas
+            p.add("IS-BASICA","100","Paralela","AYED\nMBDA\nPOOB");
+            //agregar una clase simple con tiempo vacio
+            p.add("","100","15","");
+            fail("Did not throw exception");
+        } catch (ProjectException e) {
+            assertEquals(ProjectException.DATA_INCOMPLETE,e.getMessage());
+            //agregar una clase simple con costo negativo
+            try {
+                p.add("","150","Paralela","AYED\nMBDA\nPOOB");
+                fail("Did not throw exception");
+            } catch (ProjectException e1) {
+                assertEquals(ProjectException.DATA_INCOMPLETE,e1.getMessage());
+            }
+        }
+    }
+
+    @Test
+    public void shouldDontAcceptProjectActivitiesWithTypeDiferrentToSecuencialOrParallel(){
+        Project p = new Project();
+        try {
+            //Agregar  3 clases básicaa
+            p.add("AYED","10","15","");
+            p.add("MBDA","20","20","");
+            p.add("POOB","30","15","");
+            //Agregar 1 clases compuestas
+            p.add("IS-BASICA","100","pipe","AYED\nMBDA\nPOOB");
+            //agregar una clase simple con tiempo vacio
+            p.add("ses","100","15","");
+            fail("Did not throw exception");
+        } catch (ProjectException e) {
+            assertEquals(ProjectException.COMPOSED_ERROR,e.getMessage());
+            //agregar una clase simple con costo negativo
+            try {
+                p.add("frani","150","15","AYED\nMBDA\nPOOB");
+                fail("Did not throw exception");
+            } catch (ProjectException e1) {
+                assertEquals(ProjectException.COMPOSED_ERROR,e1.getMessage());
+            }
+        }
+    }
+
+    @Test
+    public void shouldDontAceptProjectComposedActivitiesWithOutSubActivities(){
+        Project p = new Project();
+        try {
+            //Agregar  3 clases básicaa
+            p.add("AYED","10","15","");
+            p.add("MBDA","20","20","");
+            p.add("POOB","30","15","");
+            //Agregar 1 clases compuestas
+            p.add("IS-BASICA","100","Paralela","AYED\nMBDA\nPOOB");
+
+            //agregar una clase compuesta, pero sin subactividades
+            p.add("IS-ss","100","Paralela","");
+            fail("Did not throw exception");
+        } catch (ProjectException e) {
+            assertEquals(ProjectException.COMPOSED_EMPTY,e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldDontAceptProjectSimpleActivitiesWithFalseNumberTime(){
+        Project p = new Project();
+        try {
+            //Agregar  3 clases básicaa
+            p.add("AYED","10","15","");
+            p.add("MBDA","20","20","");
+            p.add("POOB","30","15","");
+            //Agregar 1 clases compuestas
+            p.add("IS-BASICA","100","Paralela","AYED\nMBDA\nPOOB");
+
+            //agregar una clase simple, pero sin un numero en tiempo
+            p.add("IS-bg","100","pepgrillo","");
+            fail("Did not throw exception");
+        } catch (ProjectException e) {
+            assertEquals(ProjectException.COMPOSED_EMPTY,e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldDontAceptProjectComposedOrSimpleActivitiesWithFalseNumberCost(){
+        Project p = new Project();
+        try {
+            //Agregar  3 clases básicaa
+            p.add("AYED","10","15","");
+            p.add("MBDA","20","20","");
+            p.add("POOB","30","15","");
+            //Agregar 1 clases compuestas
+            p.add("IS-BASICA","100","Paralela","AYED\nMBDA\nPOOB");
+
+            //agregar una clase simple, pero sin correcto costo
+            p.add("IS-BASICA1","abc","Secuencial","AYED\nMBDA\nPOOB");
+            fail("Did not throw exception");
+        } catch (ProjectException e) {
+            assertEquals(ProjectException.COST_ERROR,e.getMessage());
         }
     }
 }

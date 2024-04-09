@@ -42,7 +42,7 @@ public class ProjectManagerGUI extends JFrame{
     
 
     
-    private ProjectManagerGUI(){
+    private ProjectManagerGUI() throws ProjectException{
         project=new Project();
         prepareElements();
         prepareActions();
@@ -222,8 +222,19 @@ public class ProjectManagerGUI extends JFrame{
     }
     
     private void  actionAdd(){
-         project.add(name.getText().trim(),cost.getText().trim(),time.getText().trim(), basics.getText().trim());
-       
+        try{
+            project.add(name.getText().trim(),cost.getText().trim(),time.getText().trim(), basics.getText().trim());
+        }catch(ProjectException e){
+            if(e.getMessage().equals(ProjectException.DUPLICATE_ACTIVITY)) JOptionPane.showMessageDialog(this, "Actividad duplicada, es decir ya existe, cambia el nombre", "Error", JOptionPane.ERROR_MESSAGE);
+            else if(e.getMessage().equals(ProjectException.COST_EMPTY)) JOptionPane.showMessageDialog(this, "Costo vacio, debes ingresarlo","Error", JOptionPane.ERROR_MESSAGE);
+            else if(e.getMessage().equals(ProjectException.DATA_INCOMPLETE)) JOptionPane.showMessageDialog(this, "Datos incompletos, revisa que estes insertando el nombre", "Error", JOptionPane.ERROR_MESSAGE);
+            else if(e.getMessage().equals(ProjectException.TIME_EMPTY)) JOptionPane.showMessageDialog(this, "Tiempo vacio, debes ingresarlo","Error", JOptionPane.ERROR_MESSAGE);
+            else if(e.getMessage().equals(ProjectException.TIME_ERROR)) JOptionPane.showMessageDialog(this, "Error en el tiempo, verifica limites","Error", JOptionPane.ERROR_MESSAGE);
+            else if(e.getMessage().equals(ProjectException.COMPOSED_ERROR)) JOptionPane.showMessageDialog(this, "Error en el tipo de actividad compuesta, verifica si es secuencial o paralela","Error", JOptionPane.ERROR_MESSAGE);
+            else if(e.getMessage().equals(ProjectException.COST_ERROR)) JOptionPane.showMessageDialog(this, "Error en el costo, verifica que sea mayor a 0, o que sea un número","Error", JOptionPane.ERROR_MESSAGE);
+            else if(e.getMessage().equals(ProjectException.COMPOSED_EMPTY)) JOptionPane.showMessageDialog(this, "Actividad compuesta vacia, es decir, sin subactividades","Error", JOptionPane.ERROR_MESSAGE);
+            else JOptionPane.showMessageDialog(this, "Error desconocido", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void actionSearch(){
@@ -235,7 +246,7 @@ public class ProjectManagerGUI extends JFrame{
         textResults.setText(answer);
     } 
     
-   public static void main(String args[]){
+   public static void main(String args[]) throws ProjectException{
        ProjectManagerGUI gui=new ProjectManagerGUI();
        gui.setVisible(true);
    }    

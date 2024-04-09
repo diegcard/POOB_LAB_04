@@ -64,7 +64,8 @@ public class Simple extends Activity{
      * @throws ProjectException, if the data is not complete
      */    
     @Override
-    public String data(){
+    public String data() throws ProjectException{
+        if(cost == null || time == null || name == null) throw new ProjectException(ProjectException.DATA_INCOMPLETE);
         return name+". Costo:" +cost+".Tiempo:"+time;
     }
 }

@@ -18,14 +18,19 @@ public class Project{
      */
     public Project(){
         activities= new HashMap<String,Activity>();
-        addSome();
+        try {
+            addSome();
+        } catch (ProjectException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al inicializar Project", e);
+        }
     }
 
-    private void addSome(){
-        String [][] activities= {{"Buscar datos","50","50", "" },
-                                 {"Evaluar datos","80","80",""},
-                                 {"Limpiar datos","100","100",""},
-                                 {"Iterar","1000","500",""},
+    private void addSome() throws domain.ProjectException{
+        String [][] activities= {{"Buscar datos","50","15", "" },
+                                 {"Evaluar datos","80","20",""},
+                                 {"Limpiar datos","100","24",""},
+                                 {"Iterar","1000","10",""},
                                  {"Preparar datos", "50", "Secuencial", "Buscar datos\nEvaluar datos\nLimpiar datos"},
                                  {"Iterar 3 veces", "100", "Paralela", "Iterar\nIterar\nIterar"}};
         for (String [] c: activities){
@@ -47,24 +52,55 @@ public class Project{
     /**
      * Add a new activity
      * @param name 
-     * @param time
-     * @param type
+     * @param timeType
+     * @param cost
+     * @param theActivities
     */
-    public void add(String name, String cost, String timeType, String theActivities){ 
+    public void add(String name, String cost, String timeType, String theActivities) throws domain.ProjectException{
+        if(activities.containsKey(name.toUpperCase())) throw new ProjectException(ProjectException.DUPLICATE_ACTIVITY);
+        if(cost.equals("")) throw new ProjectException(ProjectException.COST_EMPTY);
+        if(name.equals("")) throw new ProjectException(ProjectException.DATA_INCOMPLETE);
+        int costi = validateCost(cost);
         Activity na;
         if (theActivities.equals("")){
-           na=new Simple(name,cost.equals("") ? null : Integer.parseInt(cost),timeType.equals("") ? null : Integer.parseInt(timeType));
-        }else{ 
-            na = new Composed(name,cost.equals("") ? null : Integer.parseInt(cost), timeType.equals("") ? true : timeType.toUpperCase().charAt(0)=='P');
-            String [] aSimples= theActivities.split("\n");
-            for (String b : aSimples){
-                ((Composed)na).add(activities.get(b.toUpperCase()));
-            }
+            if(timeType.equals("")) throw new ProjectException(ProjectException.TIME_EMPTY);
+            int time = validateTime(timeType);
+           na=new Simple(name,costi,time);
+        }else{
+            if(!(timeType.toUpperCase().equals("SECUENCIAL") || timeType.toUpperCase().equals("PARALELA"))) throw new ProjectException(ProjectException.COMPOSED_ERROR);
+            na = new Composed(name,costi,timeType.toUpperCase().charAt(0)=='P');
+            addActivitiesToComposed(theActivities, na);
         }
         activities.put(name.toUpperCase(),na);
     }
 
+    private void addActivitiesToComposed(String theActivities, Activity na) {
+        String [] aSimples= theActivities.split("\n");
+        for (String b : aSimples){
+            ((Composed)na).add(activities.get(b.toUpperCase()));
+        }
+    }
 
+    private int validateTime(String timeType) throws domain.ProjectException {
+        try {
+            int time = Integer.parseInt(timeType);
+            if(time < 1 || time > 24) throw new ProjectException(ProjectException.TIME_ERROR);
+            return time;
+        } catch (NumberFormatException e) {
+            throw new ProjectException(ProjectException.COMPOSED_EMPTY);
+        }
+    }
+
+    private int validateCost(String cost) throws domain.ProjectException {
+        try {
+            int costi = Integer.parseInt(cost);
+            if(costi<=0) throw new ProjectException(ProjectException.COST_ERROR);
+            return costi;
+        } catch (NumberFormatException e) {
+            throw new ProjectException(ProjectException.COST_ERROR);
+        }
+    }
+    
     /**
      * Consults the activities that start with a prefix
      * @param  
@@ -72,16 +108,15 @@ public class Project{
      */
     
     public LinkedList<Activity> select(String prefix){
-        LinkedList <Activity> answers=null;
+        LinkedList <Activity> answers=new LinkedList<>();
         prefix=prefix.toUpperCase();
-        for(int i=0;i<activities.size();i++){
-            if(activities.get(i).name().toUpperCase().startsWith(prefix.toUpperCase())){
-                answers.add(activities.get(i));
+        for(String s:activities.keySet()){
+            if(activities.get(s).name().toUpperCase().startsWith(prefix.toUpperCase())){
+                answers.add(activities.get(s));
             }   
         }
         return answers;
     }
-
 
     
     /**
@@ -97,7 +132,7 @@ public class Project{
                 answer.append('>' + p.data());
                 answer.append("\n");
             }catch(ProjectException e){
-                answer.append("**** "+e.getMessage());
+                answer.append("**** "+e.getMessage()+"\n");
             }
         }    
         return answer.toString();
