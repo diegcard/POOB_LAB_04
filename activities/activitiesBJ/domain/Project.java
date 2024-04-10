@@ -22,11 +22,13 @@ public class Project{
             addSome();
         } catch (ProjectException e) {
             e.printStackTrace();
-            throw new RuntimeException("Error al inicializar Project", e);
+            RuntimeException e1 = new RuntimeException("Error al inicializar Project", e);
+            Log.record(e1);
+            throw e1;
         }
     }
 
-    private void addSome() throws domain.ProjectException{
+    private void addSome() throws ProjectException{
         String [][] activities= {{"Buscar datos","50","15", "" },
                                  {"Evaluar datos","80","20",""},
                                  {"Limpiar datos","100","24",""},
@@ -56,48 +58,78 @@ public class Project{
      * @param cost
      * @param theActivities
     */
-    public void add(String name, String cost, String timeType, String theActivities) throws domain.ProjectException{
-        if(activities.containsKey(name.toUpperCase())) throw new ProjectException(ProjectException.DUPLICATE_ACTIVITY);
-        if(cost.equals("")) throw new ProjectException(ProjectException.COST_EMPTY);
-        if(name.equals("")) throw new ProjectException(ProjectException.DATA_INCOMPLETE);
+    public void add(String name, String cost, String timeType, String theActivities) throws ProjectException{
+        ProjectException e1 = null;
+        if(activities.containsKey(name.toUpperCase())) e1 = new ProjectException(ProjectException.DUPLICATE_ACTIVITY);
+        if(cost.equals("")) e1 = new ProjectException(ProjectException.COST_EMPTY);
+        if(name.equals("")) e1 = new ProjectException(ProjectException.DATA_INCOMPLETE);
+        if(e1 != null) {
+            Log.record(e1);
+            throw e1;
+        }
         int costi = validateCost(cost);
         Activity na;
         if (theActivities.equals("")){
-            if(timeType.equals("")) throw new ProjectException(ProjectException.TIME_EMPTY);
+            if(timeType.equals("")){
+                e1 = new ProjectException(ProjectException.TIME_EMPTY);
+                Log.record(e1);
+                throw e1;
+            }
             int time = validateTime(timeType);
            na=new Simple(name,costi,time);
         }else{
-            if(!(timeType.toUpperCase().equals("SECUENCIAL") || timeType.toUpperCase().equals("PARALELA"))) throw new ProjectException(ProjectException.COMPOSED_ERROR);
+            if(!(timeType.toUpperCase().equals("SECUENCIAL") || timeType.toUpperCase().equals("PARALELA"))){
+                e1 = new ProjectException(ProjectException.COMPOSED_ERROR);
+                Log.record(e1);
+                throw e1;
+            }
             na = new Composed(name,costi,timeType.toUpperCase().charAt(0)=='P');
             addActivitiesToComposed(theActivities, na);
         }
         activities.put(name.toUpperCase(),na);
     }
 
-    private void addActivitiesToComposed(String theActivities, Activity na) {
+    private void addActivitiesToComposed(String theActivities, Activity na) throws ProjectException {
         String [] aSimples= theActivities.split("\n");
         for (String b : aSimples){
+            if(!activities.containsKey(b.toUpperCase())){
+                ProjectException e = new ProjectException(ProjectException.SUBACTIVITY_ERROR);
+                Log.record(e);
+                throw e;
+            }
             ((Composed)na).add(activities.get(b.toUpperCase()));
         }
     }
 
-    private int validateTime(String timeType) throws domain.ProjectException {
+    private int validateTime(String timeType) throws ProjectException {
         try {
             int time = Integer.parseInt(timeType);
-            if(time < 1 || time > 24) throw new ProjectException(ProjectException.TIME_ERROR);
+            if(time < 1 || time > 24){
+                ProjectException e1 = new ProjectException(ProjectException.TIME_ERROR);
+                Log.record(e1);
+                throw e1;
+            }
             return time;
         } catch (NumberFormatException e) {
-            throw new ProjectException(ProjectException.COMPOSED_EMPTY);
+            ProjectException e1 = new ProjectException(ProjectException.COMPOSED_EMPTY);
+            Log.record(e1);
+            throw e1;
         }
     }
 
-    private int validateCost(String cost) throws domain.ProjectException {
+    private int validateCost(String cost) throws ProjectException {
         try {
             int costi = Integer.parseInt(cost);
-            if(costi<=0) throw new ProjectException(ProjectException.COST_ERROR);
+            if(costi<=0){
+                ProjectException e1 = new ProjectException(ProjectException.COST_ERROR);
+                Log.record(e1);
+                throw e1;
+            }
             return costi;
         } catch (NumberFormatException e) {
-            throw new ProjectException(ProjectException.COST_ERROR);
+            ProjectException e1 = new ProjectException(ProjectException.COST_ERROR);
+            Log.record(e1);
+            throw e1;
         }
     }
     
@@ -144,8 +176,14 @@ public class Project{
      * @param prefix
      * @return  
      */ 
-    public String search(String prefix){
-        return data(select(prefix));
+    public String search(String prefix) throws ProjectException {
+        LinkedList<Activity> activity = select(prefix);
+        if(activity.isEmpty()){
+            ProjectException e1 = new ProjectException(ProjectException.SEARCH_EMPTY);
+            Log.record(e1);
+            throw e1;
+        }
+        return data(activity);
     }
     
     

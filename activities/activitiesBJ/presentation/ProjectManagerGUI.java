@@ -35,6 +35,7 @@ public class ProjectManagerGUI extends JFrame{
     private JTextArea  basics;
     private JButton buttonAdd;
     private JButton buttonRestartAdd;
+    private JButton buttonRestarSearch;
     
     /*Search*/
     private JTextField textSearch;
@@ -152,11 +153,21 @@ public class ProjectManagerGUI extends JFrame{
                                      JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                                      JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
+        JPanel textDetailsPanel = new JPanel();
+        textDetailsPanel.setLayout(new BorderLayout());
+        textDetailsPanel.add(search, BorderLayout.NORTH);
+        textDetailsPanel.add(basics, BorderLayout.CENTER);
+
+        JPanel botones = new JPanel();
+        buttonRestarSearch = new JButton("Limpiar");
+
+        botones.add(buttonRestarSearch);                             
+                                     
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.add(search, BorderLayout.NORTH);
         panel.add(scrollArea, BorderLayout.CENTER);
-
+        
         return panel;
     }
 
@@ -198,6 +209,12 @@ public class ProjectManagerGUI extends JFrame{
             }
         });
         
+        buttonRestarSearch.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ev){
+                textSearch.setText("");
+            }
+        });
+        
         /*Search*/
         textSearch.getDocument().addDocumentListener(new DocumentListener(){
             public void changedUpdate(DocumentEvent ev){
@@ -232,6 +249,7 @@ public class ProjectManagerGUI extends JFrame{
             else if(e.getMessage().equals(ProjectException.TIME_ERROR)) JOptionPane.showMessageDialog(this, "Error en el tiempo, verifica limites","Error", JOptionPane.ERROR_MESSAGE);
             else if(e.getMessage().equals(ProjectException.COMPOSED_ERROR)) JOptionPane.showMessageDialog(this, "Error en el tipo de actividad compuesta, verifica si es secuencial o paralela","Error", JOptionPane.ERROR_MESSAGE);
             else if(e.getMessage().equals(ProjectException.COST_ERROR)) JOptionPane.showMessageDialog(this, "Error en el costo, verifica que sea mayor a 0, o que sea un número","Error", JOptionPane.ERROR_MESSAGE);
+            else if(e.getMessage().equals(ProjectException.SUBACTIVITY_ERROR)) JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             else if(e.getMessage().equals(ProjectException.COMPOSED_EMPTY)) JOptionPane.showMessageDialog(this, "Actividad compuesta vacia, es decir, sin subactividades","Error", JOptionPane.ERROR_MESSAGE);
             else JOptionPane.showMessageDialog(this, "Error desconocido", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -241,8 +259,13 @@ public class ProjectManagerGUI extends JFrame{
         String pattern=textSearch.getText();
         String answer = "";
         if(pattern.length() > 0) {
-            answer = project.search(pattern);
+            try{
+                answer = project.search(pattern);
+            }catch(ProjectException e){
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
+        
         textResults.setText(answer);
     } 
     

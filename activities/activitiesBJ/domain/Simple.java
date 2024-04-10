@@ -41,9 +41,18 @@ public class Simple extends Activity{
      */
     @Override
     public int time() throws ProjectException{
-       if (time == null) throw new ProjectException(ProjectException.TIME_EMPTY);
-       if (time < 1 || time>24) throw new ProjectException(ProjectException.TIME_ERROR);
-       return time;
+
+        if (time == null) {
+            ProjectException e1 = new ProjectException(ProjectException.TIME_EMPTY);
+            Log.record(e1);
+            throw e1;
+        }
+        if (time < 1 || time>24){
+            ProjectException e1 = new ProjectException(ProjectException.TIME_ERROR);
+            Log.record(e1);
+            throw e1;
+        }
+        return time;
     }    
     
     /**
@@ -53,8 +62,16 @@ public class Simple extends Activity{
      */    
     @Override
     public int cost() throws ProjectException{
-       if (cost == null) throw new ProjectException(ProjectException.COST_EMPTY);
-       if (cost <= 0) throw new ProjectException(ProjectException.COST_ERROR);
+       if (cost == null) {
+           ProjectException e1 = new ProjectException(ProjectException.COST_EMPTY);
+           Log.record(e1);
+           throw e1;
+       }
+       if (cost <= 0){
+           ProjectException e1 = new ProjectException(ProjectException.COST_ERROR);
+           Log.record(e1);
+           throw e1;
+       }
        return cost;
     }   
     
@@ -65,7 +82,12 @@ public class Simple extends Activity{
      */    
     @Override
     public String data() throws ProjectException{
-        if(cost == null || time == null || name == null) throw new ProjectException(ProjectException.DATA_INCOMPLETE);
+        if(cost == null || time == null || name == null){
+            ProjectException e1 = new ProjectException(ProjectException.DATA_INCOMPLETE);
+            Log.record(e1);
+            throw e1;
+        }
+
         return name+". Costo:" +cost+".Tiempo:"+time;
     }
 }

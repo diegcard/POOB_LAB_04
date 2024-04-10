@@ -19,6 +19,8 @@ public class ProjectException extends Exception{
     public static final String DUPLICATE_ACTIVITY = "Ya existe una actividad con dicho nombre";
     public static final String COMPOSED_ERROR = "Verifica que el tipo de actividad compuesta sea 'Paralela' o 'Secuencial'";
     public static final String DATA_INCOMPLETE = "Verifica que hayas insertado todos los datos necesarios";
+    public static final String SEARCH_EMPTY = "Ninguna actividad con dicho prefijo";
+    public static final String SUBACTIVITY_ERROR = "No existe dicha subactividad entre las actividades";
     
     
     public ProjectException(String message){

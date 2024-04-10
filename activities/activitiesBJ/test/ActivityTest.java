@@ -1108,4 +1108,26 @@ public class ActivityTest{
             assertEquals(ProjectException.COST_ERROR,e.getMessage());
         }
     }
+
+    @Test
+    public void shouldProjectSearchForAnActivity(){
+        Project p = new Project();
+        try{
+            p.add("POBCITo","110","20","");
+            assertEquals("7 actividades\n>POBCITo. Costo:110.Tiempo:20\n",p.search("pob"));
+        }catch (ProjectException e){
+            fail("Threw a exception");
+        }
+    }
+
+    @Test
+    public void shouldProjectThrowAnExeptionWhenSearchForAnNonExistingActivity(){
+        Project p = new Project();
+        try{
+            assertEquals("7 actividades\n>aYED3. Costo:10.Tiempo:15\n",p.search("aYED3"));
+            fail("Did not throw exception");
+        }catch (Exception e){
+            assertEquals(ProjectException.SEARCH_EMPTY,e.getMessage());
+        }
+    }
 }

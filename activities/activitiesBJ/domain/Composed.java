@@ -40,9 +40,21 @@ public class Composed extends Activity{
      */    
     @Override
     public int cost() throws ProjectException{
-        if(activities.isEmpty()) throw new ProjectException(ProjectException.COMPOSED_EMPTY);
-        if(cost == null) throw new ProjectException(ProjectException.COST_EMPTY);
-        if(cost <= 0) throw new ProjectException(ProjectException.COST_ERROR);
+        if(activities.isEmpty()){
+           ProjectException e1 = new ProjectException(ProjectException.COMPOSED_EMPTY);
+           Log.record(e1);
+           throw e1;
+       }
+        if(cost == null){
+           ProjectException e1 = new ProjectException(ProjectException.COST_EMPTY);
+           Log.record(e1);
+           throw e1;
+       }
+        if(cost <= 0){
+           ProjectException e1 = new ProjectException(ProjectException.COST_ERROR);
+           Log.record(e1);
+           throw e1;
+       }
         return cost;
     }
     
@@ -54,7 +66,11 @@ public class Composed extends Activity{
      */
     @Override
     public int time() throws ProjectException{
-        if(activities.isEmpty()) throw new ProjectException(ProjectException.COMPOSED_EMPTY);
+        if(activities.isEmpty()){
+            ProjectException e1 = new ProjectException(ProjectException.COMPOSED_EMPTY);
+            Log.record(e1);
+            throw e1;
+        }
         int maxtime = Integer.MIN_VALUE;
         time = 0;
         for(Activity a: activities){
@@ -105,7 +121,11 @@ public class Composed extends Activity{
      * @throws ProjectException  IMPOSSIBLE, if it can't be calculated
      **/
     public int time(char modality) throws ProjectException{
-        if(activities.isEmpty()) throw new ProjectException(ProjectException.COMPOSED_EMPTY);
+        if(activities.isEmpty()){
+            ProjectException e1 = new ProjectException(ProjectException.COMPOSED_EMPTY);
+            Log.record(e1);
+            throw e1;
+        }
         int totalTime = 0, count = 0, maxTime = Integer.MIN_VALUE;
         ArrayList<Integer> errorIndices = new ArrayList<Integer>();
         for(Activity a: activities){
@@ -117,7 +137,11 @@ public class Composed extends Activity{
                 errorIndices.add(activities.indexOf(a));
             }
         }
-        if(count == 0 || !(modality == 'A' || modality == 'M')) throw new ProjectException(ProjectException.IMPOSIBLE);
+        if(count == 0 || !(modality == 'A' || modality == 'M')){
+            ProjectException e1 = new ProjectException(ProjectException.IMPOSIBLE);
+            Log.record(e1);
+            throw e1;
+        }
         int estimatedTime = modality == 'A' ? totalTime/count : maxTime;
         for(int i: errorIndices) activities.get(i).time = estimatedTime;
         if(parallel) time = maxTime;
@@ -132,11 +156,17 @@ public class Composed extends Activity{
      */
     public int time(String activity) throws ProjectException{
         Activity a = search(activity);
-        if(a == null) throw new ProjectException(ProjectException.UNKNOWN);
+        if(a == null){
+            ProjectException e1 = new ProjectException(ProjectException.UNKNOWN);
+            Log.record(e1);
+            throw e1;
+        }
         try{
             return a.time();
         }catch(ProjectException e){
-            throw new ProjectException(ProjectException.IMPOSIBLE);
+            ProjectException e1 = new ProjectException(ProjectException.IMPOSIBLE);
+            Log.record(e1);
+            throw e1;
         }
     }
 
@@ -163,8 +193,16 @@ public class Composed extends Activity{
      */    
     @Override
     public String data() throws ProjectException{
-        if(activities.isEmpty()) throw new ProjectException(ProjectException.COMPOSED_EMPTY);
-        if(cost == null || name == null) throw new ProjectException(ProjectException.DATA_INCOMPLETE);
+        if(activities.isEmpty()){
+            ProjectException e1 = new ProjectException(ProjectException.COMPOSED_EMPTY);
+            Log.record(e1);
+            throw e1;
+        }
+        if(cost == null || name == null){
+            ProjectException e1 = new ProjectException(ProjectException.DATA_INCOMPLETE);
+            Log.record(e1);
+            throw e1;
+        }
         StringBuffer answer=new StringBuffer();
         answer.append(name+". Tipo "+ (parallel ? "Paralela": "Secuencial")+".");
         for(Activity b: activities) {
