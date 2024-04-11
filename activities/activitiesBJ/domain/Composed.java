@@ -1,87 +1,91 @@
-package domain;  
- 
+package domain;
+
 import java.util.ArrayList;
 
 /**
  * this class represents a composed activity that can be parallel or sequential
  * it is composed of other activities
- * @author Cardenas-Cardona
+ *
+ * @author Sebastian Cardona
+ * @author Diego Cardenas
  * @version 1.0.0
  */
-public class Composed extends Activity{
-   
-    private boolean parallel;
-    private ArrayList<Activity> activities;
-    
+public class Composed extends Activity {
+
+    private final boolean parallel;
+    private final ArrayList<Activity> activities;
+
     /**
      * Constructs a new composed activity
-     * @param name 
-     * @param cost
-     * @param parallel
+     *
+     * @param name     name of the activity
+     * @param cost     cost of the activity
+     * @param parallel type of composed activity
      */
-    public Composed(String name, Integer cost, boolean parallel){
-        super(name,cost);
-        this.parallel=parallel;
-        activities= new ArrayList<Activity>();
+    public Composed(String name, Integer cost, boolean parallel) {
+        super(name, cost);
+        this.parallel = parallel;
+        activities = new ArrayList<>();
     }
-    
-     /**
+
+    /**
      * Add a new activity
-     * @param a
-     */   
-    public void add(Activity a){
+     *
+     * @param a activity to add
+     */
+    public void add(Activity a) {
         activities.add(a);
     }
-       
+
     /**
      * Return cost tha it will take to make the activity
+     *
      * @return cost
      * @throws ProjectException, if the cost is not available or has an error
-     */    
+     */
     @Override
-    public int cost() throws ProjectException{
-        if(activities.isEmpty()){
-           ProjectException e1 = new ProjectException(ProjectException.COMPOSED_EMPTY);
-           Log.record(e1);
-           throw e1;
-       }
-        if(cost == null){
-           ProjectException e1 = new ProjectException(ProjectException.COST_EMPTY);
-           Log.record(e1);
-           throw e1;
-       }
-        if(cost <= 0){
-           ProjectException e1 = new ProjectException(ProjectException.COST_ERROR);
-           Log.record(e1);
-           throw e1;
-       }
+    public int cost() throws ProjectException {
+        if (activities.isEmpty()) {
+            ProjectException e1 = new ProjectException(ProjectException.COMPOSED_EMPTY);
+            Log.record(e1);
+            throw e1;
+        }
+        if (cost == null) {
+            ProjectException e1 = new ProjectException(ProjectException.COST_EMPTY);
+            Log.record(e1);
+            throw e1;
+        }
+        if (cost <= 0) {
+            ProjectException e1 = new ProjectException(ProjectException.COST_ERROR);
+            Log.record(e1);
+            throw e1;
+        }
         return cost;
     }
-    
+
     /**
      * calculates the total time it will take to execute a composed
      * activity, depending on whether the activity is performed sequentially or parallel
-     * 
+     *
      * @return time total
      */
     @Override
-    public int time() throws ProjectException{
-        if(activities.isEmpty()){
+    public int time() throws ProjectException {
+        if (activities.isEmpty()) {
             ProjectException e1 = new ProjectException(ProjectException.COMPOSED_EMPTY);
             Log.record(e1);
             throw e1;
         }
         int maxtime = Integer.MIN_VALUE;
         time = 0;
-        for(Activity a: activities){
+        for (Activity a : activities) {
             time += a.time();
-            if(a.time() > maxtime) maxtime = a.time();
+            if (a.time() > maxtime) maxtime = a.time();
         }
-        if(!parallel) return time;
-        else{
+        if (parallel) {
             time = maxtime;
-            return time;  
         }
+        return time;
     }
 
 
@@ -111,59 +115,60 @@ public class Composed extends Activity{
                     return 0;
             }
         }
-    } 
-    
-    
-     /**
+    }
+
+    /**
      * Calculate an estimated time considering the modality, if is possible.
-     * @param modality ['A'(verage), 'M' (ax)] Use the average or maximum time of known activities to estimate unknown ones or those with error.
+     *
+     * @param modality ['A'(average), 'M' (ax)] Use the average or maximum time of known activities to estimate unknown ones or those with error.
      * @return 0
-     * @throws ProjectException  IMPOSSIBLE, if it can't be calculated
+     * @throws ProjectException IMPOSSIBLE, if it can't be calculated
      **/
-    public int time(char modality) throws ProjectException{
-        if(activities.isEmpty()){
+    public int time(char modality) throws ProjectException {
+        if (activities.isEmpty()) {
             ProjectException e1 = new ProjectException(ProjectException.COMPOSED_EMPTY);
             Log.record(e1);
             throw e1;
         }
         int totalTime = 0, count = 0, maxTime = Integer.MIN_VALUE;
-        ArrayList<Integer> errorIndices = new ArrayList<Integer>();
-        for(Activity a: activities){
+        ArrayList<Integer> errorIndices = new ArrayList<>();
+        for (Activity a : activities) {
             try {
                 totalTime += a.time();
                 count++;
-                if(a.time() > maxTime) maxTime = a.time();
-            }catch (ProjectException e){
+                if (a.time() > maxTime) maxTime = a.time();
+            } catch (ProjectException e) {
                 errorIndices.add(activities.indexOf(a));
             }
         }
-        if(count == 0 || !(modality == 'A' || modality == 'M')){
+        if (count == 0 || !(modality == 'A' || modality == 'M')) {
             ProjectException e1 = new ProjectException(ProjectException.IMPOSIBLE);
             Log.record(e1);
             throw e1;
         }
-        int estimatedTime = modality == 'A' ? totalTime/count : maxTime;
-        for(int i: errorIndices) activities.get(i).time = estimatedTime;
-        if(parallel) time = maxTime;
-        else time = totalTime+estimatedTime*(errorIndices.size());
+        int estimatedTime = modality == 'A' ? totalTime / count : maxTime;
+        for (int i : errorIndices) activities.get(i).time = estimatedTime;
+        if (parallel) time = maxTime;
+        else time = totalTime + estimatedTime * (errorIndices.size());
         return time;
-    } 
-    
-     /**
+    }
+
+    /**
      * Calculates a time of a subactivity
+     *
      * @return time of the subactivity
      * @throws ProjectException UNKNOWN, if it doesn't exist. IMPOSSIBLE, if it can't be calculated
      */
-    public int time(String activity) throws ProjectException{
+    public int time(String activity) throws ProjectException {
         Activity a = search(activity);
-        if(a == null){
+        if (a == null) {
             ProjectException e1 = new ProjectException(ProjectException.UNKNOWN);
             Log.record(e1);
             throw e1;
         }
-        try{
+        try {
             return a.time();
-        }catch(ProjectException e){
+        } catch (ProjectException e) {
             ProjectException e1 = new ProjectException(ProjectException.IMPOSIBLE);
             Log.record(e1);
             throw e1;
@@ -185,30 +190,30 @@ public class Composed extends Activity{
         }
         return null;
     }
-    
+
     /**
      * Return the representation as string
-     * @return
+     *
+     * @return string representation
      * @throws ProjectException, if the data is not complete
-     */    
+     */
     @Override
-    public String data() throws ProjectException{
-        if(activities.isEmpty()){
+    public String data() throws ProjectException {
+        if (activities.isEmpty()) {
             ProjectException e1 = new ProjectException(ProjectException.COMPOSED_EMPTY);
             Log.record(e1);
             throw e1;
         }
-        if(cost == null || name == null){
+        if (cost == null || name == null) {
             ProjectException e1 = new ProjectException(ProjectException.DATA_INCOMPLETE);
             Log.record(e1);
             throw e1;
         }
-        StringBuffer answer=new StringBuffer();
-        answer.append(name+". Tipo "+ (parallel ? "Paralela": "Secuencial")+".");
-        for(Activity b: activities) {
-            answer.append("\n\t"+b.data());
+        StringBuffer answer = new StringBuffer();
+        answer.append(name + ". Tipo " + (parallel ? "Paralela" : "Secuencial") + ".");
+        for (Activity b : activities) {
+            answer.append("\n\t" + b.data());
         }
         return answer.toString();
-    } 
-
+    }
 }
