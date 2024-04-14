@@ -35,7 +35,6 @@ public class ProjectManagerGUI extends JFrame {
     private JTextArea basics;
     private JButton buttonAdd;
     private JButton buttonRestartAdd;
-    private JButton buttonRestarSearch;
 
     /*Search*/
     private JTextField textSearch;
@@ -98,17 +97,18 @@ public class ProjectManagerGUI extends JFrame {
      * @return panel
      */
 
-    private JPanel prepareAreaAdd() {
-
+        private JPanel prepareAreaAdd(){
+            
         Box fields = Box.createVerticalBox();
         fields.add(new JLabel("Nombre", JLabel.LEFT));
         fields.add(name);
-        fields.add(new JLabel("Duracion (en horas) o Tipo (Paralela o Secuencial)", JLabel.LEFT));
-        fields.add(time);
+        fields.add(new JLabel("Duracion (en horas) o Tipo (Paralela o Secuencial)", JLabel.LEFT));       
+        fields.add(time); 
         fields.add(add(new JLabel("Costo", JLabel.LEFT)));
         fields.add(cost);
         fields.add(new JLabel("Actividades", JLabel.LEFT));
-
+        
+        
         JPanel textDetailsPanel = new JPanel();
         textDetailsPanel.setLayout(new BorderLayout());
         textDetailsPanel.add(fields, BorderLayout.NORTH);
@@ -133,30 +133,20 @@ public class ProjectManagerGUI extends JFrame {
      *
      * @return panel
      */
-    private JPanel prepareSearchArea() {
+    private JPanel prepareSearchArea(){
 
         Box search = Box.createHorizontalBox();
         search.add(new JLabel("Buscar", JLabel.LEFT));
         textSearch = new JTextField(50);
         search.add(textSearch);
-
-        textResults = new JTextArea(10, 50);
+        
+        textResults = new JTextArea(10,50);
         textResults.setEditable(false);
         textResults.setLineWrap(true);
         textResults.setWrapStyleWord(true);
         JScrollPane scrollArea = new JScrollPane(textResults,
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
-        JPanel textDetailsPanel = new JPanel();
-        textDetailsPanel.setLayout(new BorderLayout());
-        textDetailsPanel.add(search, BorderLayout.NORTH);
-        textDetailsPanel.add(basics, BorderLayout.CENTER);
-
-        JPanel botones = new JPanel();
-        buttonRestarSearch = new JButton("Limpiar");
-
-        botones.add(buttonRestarSearch);
+                                     JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                     JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
@@ -204,11 +194,6 @@ public class ProjectManagerGUI extends JFrame {
             }
         });
 
-        buttonRestarSearch.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ev) {
-                textSearch.setText("");
-            }
-        });
 
         /*Search*/
         textSearch.getDocument().addDocumentListener(new DocumentListener() {
